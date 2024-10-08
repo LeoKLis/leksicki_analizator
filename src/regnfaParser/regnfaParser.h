@@ -4,8 +4,7 @@
 #include<string>
 #include<iostream>
 
-class RegnfaParser
-{
+class RegnfaParser {
 private:
     void printArray(int *polje[], int n);
 public:
