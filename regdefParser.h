@@ -19,10 +19,6 @@ using namespace std;
 class RegdefParser
 {
 private:
-    map<string, string> regexMap;
-    vector<string> states;
-    vector<string> lexUnits;
-    map<pair<string, string>, vector<string>> lexRuleMap;
 
     bool isRegex(string regdef);
     bool isLetter(char letter);
@@ -32,6 +28,11 @@ private:
     void appendLexUnits(string line);
     void appendLexRules(string line);
 public:
+    map<string, string> regexMap;
+    vector<string> states;
+    vector<string> lexUnits;
+    map<pair<string, string>, vector<string>> lexRuleMap;
+    
     void parseLine(string line);
 
     void printRegexMap();

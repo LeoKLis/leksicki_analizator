@@ -1,4 +1,4 @@
-// Kompajlirati 
+// Kompajlirati sa "make"
 
 // Generator funkcionalnost
 // - cita leksicka pravila sa standardnog ulaza (a.exe < pravila.txt)
@@ -8,24 +8,18 @@
 #include "regdefParser.h"
 
 #include <iostream>
-#include <string>
 #include <map>
+#include <string>
 
 using namespace std;
 
-int main()
-{
-    RegdefParser rdp;
+int main() {
+  RegdefParser rdp;
 
-    string line;
-    while(getline(cin, line)){
-        rdp.parseLine(line);
-    }
+  string line;
+  while (getline(cin, line)) {
+    rdp.parseLine(line);
+  }
 
-    rdp.printRegexMap();
-    // rdp.printStates();
-    // rdp.printLexicalUnits();
-    // rdp.printLexicalRules();
-
-    return 0;
+  return 0;
 }
