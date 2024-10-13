@@ -9,17 +9,15 @@
 #define REGDEF_PARSER_H
 
 #include <iostream>
-#include <string>
 #include <map>
 #include <regex>
+#include <string>
 #include <vector>
 
 using namespace std;
 
-class RegdefParser
-{
+class RegdefParser {
 private:
-
     bool isRegex(string regdef);
     bool isLetter(char letter);
 
@@ -27,12 +25,13 @@ private:
     void appendStates(string line);
     void appendLexUnits(string line);
     void appendLexRules(string line);
+
 public:
     map<string, string> regexMap;
     vector<string> states;
     vector<string> lexUnits;
-    map<pair<string, string>, vector<string>> lexRuleMap;
-    
+    map<string, vector<pair<string, vector<string>>>> lexRuleMap;
+
     void parseLine(string line);
 
     void printRegexMap();

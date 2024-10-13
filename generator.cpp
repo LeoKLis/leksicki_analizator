@@ -6,20 +6,27 @@
 // - generira .c ili .txt sa eps-NKA (nkaParser.h)
 
 #include "regdefParser.h"
+#include "regnfaParser.h"
 
 #include <iostream>
 #include <map>
 #include <string>
 
+
 using namespace std;
 
-int main() {
-  RegdefParser rdp;
+int main()
+{
+    RegdefParser rdp;
 
-  string line;
-  while (getline(cin, line)) {
-    rdp.parseLine(line);
-  }
+    string line;
+    while (getline(cin, line)) {
+        rdp.parseLine(line);
+    }
 
-  return 0;
+    NFA nfa = RegnfaParser::parse(rdp.lexRuleMap["<S_komentar>"]);
+    RegnfaParser::printNFA(nfa.stateTransitions);
+    RegnfaParser::printAcceptStates(nfa.acceptStatesMap);
+
+    return 0;
 }

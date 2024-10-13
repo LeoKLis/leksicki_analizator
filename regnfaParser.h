@@ -1,37 +1,37 @@
 #ifndef REGNFA_PARSER_H
 #define REGNFA_PARSER_H
 
-#include<string>
-#include<iostream>
-#include <vector>
+#include <iostream>
 #include <map>
+#include <string>
+#include <vector>
 
-#define EPSILON "$"
-
+#define EPSILON '$'
+#define NFA_STRUCTURE vector<map<char, vector<int>>>
+#define LEX_RULES_STRUCTURE vector<pair<string, vector<string>>>
 
 using namespace std;
 
-class RegnfaParser {
-private:
-    vector<map<string, vector<int> >> stateTransitions;      //Indexed states, maps transitions to next states
-    map<int, string> finalStates;        //for int index gives regex
-    int n;
-    int createState();
-    int createState(string reg);
-    void addTransition(int from, int to, string znak);
-    void addTransition(int from, int to, char znak);
-
-    void constuctNFA(int start, int end, string reg);
-    static bool je_operator(string reg, int i);
-public:
-    RegnfaParser(){
-        n=0;
-        createState();
-    };
-    void parse(std::string regex, std::string action);
-    void print();
-    void finalPrint();
+// Structure that stores epsilon-NFA transitions and accepting states
+// @param stateTransitions contains epsilon-NFA transitions stored in vector
+// @param acceptStatesMap contains accept states and their action stored in map
+struct NFA {
+    NFA_STRUCTURE stateTransitions;
+    map<int, vector<string>> acceptStatesMap;
 };
 
+class RegnfaParser {
+private:
+    static int createState(NFA_STRUCTURE *stateTransitions, int *stateCount);
+    static void addTransition(NFA_STRUCTURE *stateTransitions, int from, int to, char znak);
+    static void constructNFA(NFA_STRUCTURE *stateTransitions, int start, int end, string reg, int *stateCount);
+    static bool isOperator(string reg, int i);
+    static NFA_STRUCTURE addNFA(NFA_STRUCTURE *stateTransitions, std::string regex, int *stateCount);
+
+public:
+    static NFA parse(LEX_RULES_STRUCTURE rules);
+    static void printNFA(NFA_STRUCTURE stateTransitions);
+    static void printAcceptStates(map<int, vector<string>> acceptStatesMap);
+};
 
 #endif /*REGNFA_PARSER_H*/
