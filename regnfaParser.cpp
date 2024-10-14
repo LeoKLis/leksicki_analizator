@@ -2,7 +2,7 @@
 
 int RegnfaParser::createState(NFA_STRUCTURE *stateTransitions, int *stateCount)
 {
-    map<char, vector<int>> state;
+    map<string, vector<int>> state;
     stateTransitions->push_back(state);
     return (*stateCount)++;
 }
@@ -17,9 +17,9 @@ bool RegnfaParser::isOperator(string reg, int i)
     return (br % 2 == 0);
 }
 
-void RegnfaParser::addTransition(NFA_STRUCTURE *stateTransitions, int from, int to, char znak)
+void RegnfaParser::addTransition(NFA_STRUCTURE *stateTransitions, int from, int to, string znak)
 {
-    map<char, vector<int>> stateMap = stateTransitions->at(from);
+    map<string, vector<int>> stateMap = stateTransitions->at(from);
 
     if (stateMap.find(znak) != stateMap.end()) {
         ((stateTransitions->at(from)).at(znak)).push_back(to);
@@ -63,15 +63,15 @@ void RegnfaParser::constructNFA(NFA_STRUCTURE *stateTransitions, int startState,
             /// slucaj1 (prefiksirani znak)
             if (prefiksirano == true) {
                 prefiksirano = false;
-                char prijelazni_znak;
-                if (regex[i] == 't')
-                    prijelazni_znak = '\t';
-                else if (regex[i] == 'n')
-                    prijelazni_znak = '\n';
-                else if (regex[i] == '_')
-                    prijelazni_znak = ' ';
-                else
-                    prijelazni_znak = regex[i];
+                string prijelazni_znak;
+                // if (regex[i] == 't')
+                //     prijelazni_znak = "\\t";
+                // else if (regex[i] == 'n')
+                //     prijelazni_znak = "\\n";
+                // else if (regex[i] == '_')
+                //     prijelazni_znak = "\\_";
+                // else
+                    prijelazni_znak = "\\" + string{regex[i]};
                 a = createState(stateTransitions, stateCount);
                 b = createState(stateTransitions, stateCount);
                 addTransition(stateTransitions, a, b, prijelazni_znak);
@@ -87,7 +87,7 @@ void RegnfaParser::constructNFA(NFA_STRUCTURE *stateTransitions, int startState,
                     if (regex[i] == '$')
                         addTransition(stateTransitions, a, b, EPSILON);
                     else
-                        addTransition(stateTransitions, a, b, regex[i]);
+                        addTransition(stateTransitions, a, b, string{regex[i]});
                 } else { /// slucaj 2b (ako je naso izraz u zagradi, rekurzivno nastavlja algoritam)
                     int trazim = 1;
                     int j = i + 1;
@@ -132,14 +132,7 @@ void RegnfaParser::constructNFA(NFA_STRUCTURE *stateTransitions, int startState,
     }
 }
 
-NFA_STRUCTURE RegnfaParser::addNFA(NFA_STRUCTURE *stateTransitions, string regex, int *stateCount)
-{
-    int startState = createState(stateTransitions, stateCount);
-    int endState = createState(stateTransitions, stateCount);
-    constructNFA(stateTransitions, startState, endState, regex, stateCount);
-}
-
-NFA RegnfaParser::parse(LEX_RULES_STRUCTURE rules){
+NFA RegnfaParser::parse(string state, LEX_RULES_STRUCTURE rules){
     NFA_STRUCTURE stateTransitions;
     map<int, vector<string>> acceptStatesMap;
     int stateCount = 0;
@@ -153,21 +146,16 @@ NFA RegnfaParser::parse(LEX_RULES_STRUCTURE rules){
         constructNFA(&stateTransitions, startState, endState, it.first, &stateCount);
     }
 
-    return NFA{stateTransitions, acceptStatesMap};
+    return NFA{state, stateTransitions, acceptStatesMap};
 }
 
 void RegnfaParser::printNFA(NFA_STRUCTURE stateTransitions)
 {
     for (int i = 0; i < stateTransitions.size(); i++) {
-        map<char, vector<int>> mapa = stateTransitions.at(i);
+        map<string, vector<int>> mapa = stateTransitions.at(i);
         cout << "Stanje " << i << endl;
         for (auto vek : mapa) {
-            if (vek.first == '\n')
-                cout << "\tZnak \\n: ";
-            else if (vek.first == '\t')
-                cout << "\tZnak \\t: ";
-            else
-                cout << "\tZnak " << vek.first << ": ";
+            cout << "\tZnak " << vek.first << ": ";
             for (int j = 0; j < vek.second.size() - 1; j++) {
                 cout << vek.second.at(j) << ", ";
             }

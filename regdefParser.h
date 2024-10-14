@@ -16,6 +16,8 @@
 
 using namespace std;
 
+#define RULES_STRUCTURE vector<pair<string, vector<string>>>
+
 class RegdefParser {
 private:
     bool isRegex(string regdef);
@@ -30,7 +32,7 @@ public:
     map<string, string> regexMap;
     vector<string> states;
     vector<string> lexUnits;
-    map<string, vector<pair<string, vector<string>>>> lexRuleMap;
+    map<string, RULES_STRUCTURE> lexRuleMap;
 
     void parseLine(string line);
 

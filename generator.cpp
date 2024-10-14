@@ -11,7 +11,7 @@
 #include <iostream>
 #include <map>
 #include <string>
-
+#include <fstream>
 
 using namespace std;
 
@@ -24,9 +24,33 @@ int main()
         rdp.parseLine(line);
     }
 
-    NFA nfa = RegnfaParser::parse(rdp.lexRuleMap["<S_komentar>"]);
-    RegnfaParser::printNFA(nfa.stateTransitions);
-    RegnfaParser::printAcceptStates(nfa.acceptStatesMap);
+    // ofstream nkaFile("analizator/nfa.txt");
+
+    for(auto it = rdp.lexRuleMap.cbegin(); it != rdp.lexRuleMap.cend(); it++){
+        NFA nfa = RegnfaParser::parse(it->first, it->second);
+        // nkaFile << "\n" << it->first << "\n";
+
+        // for(int i=0; i<nfa.stateTransitions.size(); i++){
+        //     nkaFile << i << " ";
+        //     for(auto it = nfa.stateTransitions[i].cbegin(); it != nfa.stateTransitions[i].cend(); it++){
+        //         nkaFile << it->first << " ";
+        //         for(auto se : it->second){
+        //             nkaFile << se << " ";
+        //         }
+        //     }
+        //     nkaFile << "\n";
+        // }
+        // nkaFile << "\n";
+        // for(auto it = nfa.acceptStatesMap.cbegin(); it != nfa.acceptStatesMap.cend(); it++){
+        //     nkaFile << it->first << " ";
+        //     for(auto se : it->second){
+        //         nkaFile << se << " ";
+        //     }
+        //     nkaFile << "\n";
+        // }
+    }
+
+    // nkaFile.close();
 
     return 0;
 }
