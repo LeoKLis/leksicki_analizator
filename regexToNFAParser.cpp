@@ -1,13 +1,13 @@
-#include "regnfaParser.h"
+#include "regexToNFAParser.h"
 
-int RegnfaParser::createState(NFA_STRUCTURE *stateTransitions, int *stateCount)
+int RegexToNFAParser::createState(NFA_STRUCTURE *stateTransitions, int *stateCount)
 {
     map<string, vector<int>> state;
     stateTransitions->push_back(state);
     return (*stateCount)++;
 }
 
-bool RegnfaParser::isOperator(string reg, int i)
+bool RegexToNFAParser::isOperator(string reg, int i)
 {
     int br = 0;
     while (i - 1 > 0 && reg[i - 1] == '\\') {
@@ -17,7 +17,7 @@ bool RegnfaParser::isOperator(string reg, int i)
     return (br % 2 == 0);
 }
 
-void RegnfaParser::addTransition(NFA_STRUCTURE *stateTransitions, int from, int to, string znak)
+void RegexToNFAParser::addTransition(NFA_STRUCTURE *stateTransitions, int from, int to, string znak)
 {
     map<string, vector<int>> stateMap = stateTransitions->at(from);
 
@@ -30,7 +30,7 @@ void RegnfaParser::addTransition(NFA_STRUCTURE *stateTransitions, int from, int 
     }
 }
 
-void RegnfaParser::constructNFA(NFA_STRUCTURE *stateTransitions, int startState, int endState, string regex, int *stateCount)
+void RegexToNFAParser::constructNFA(NFA_STRUCTURE *stateTransitions, int startState, int endState, string regex, int *stateCount)
 {
     vector<string> izbori;
     int last_grouped = 0;
@@ -132,7 +132,7 @@ void RegnfaParser::constructNFA(NFA_STRUCTURE *stateTransitions, int startState,
     }
 }
 
-NFA RegnfaParser::parse(string state, LEX_RULES_STRUCTURE rules){
+NFA RegexToNFAParser::parseRegex(string stateName, LEX_RULES_STRUCTURE rules){
     NFA_STRUCTURE stateTransitions;
     map<int, vector<string>> acceptStatesMap;
     int stateCount = 0;
@@ -146,30 +146,42 @@ NFA RegnfaParser::parse(string state, LEX_RULES_STRUCTURE rules){
         constructNFA(&stateTransitions, startState, endState, it.first, &stateCount);
     }
 
-    return NFA{state, stateTransitions, acceptStatesMap};
+    return NFA{stateName, stateTransitions, acceptStatesMap};
 }
 
-void RegnfaParser::printNFA(NFA_STRUCTURE stateTransitions)
+vector<NFA> RegexToNFAParser::parse(vector<string> lexStates, map<string, vector<pair<string, vector<string>>>> lexRuleMap){
+    vector<NFA> nfaArr;
+    for(string stateName : lexStates){
+        NFA nfa = parseRegex(stateName, lexRuleMap["<" + stateName + ">"]);
+        nfaArr.push_back(nfa);
+    }
+    return nfaArr;
+}
+
+void RegexToNFAParser::serialize(string fileName, vector<NFA> nfaArr)
 {
-    for (int i = 0; i < stateTransitions.size(); i++) {
-        map<string, vector<int>> mapa = stateTransitions.at(i);
-        cout << "Stanje " << i << endl;
-        for (auto vek : mapa) {
-            cout << "\tZnak " << vek.first << ": ";
-            for (int j = 0; j < vek.second.size() - 1; j++) {
-                cout << vek.second.at(j) << ", ";
-            }
-            cout << vek.second.at(vek.second.size() - 1) << endl;
-        }
-    }
-}
+    ofstream nkaFile(fileName);
+    for(auto it : nfaArr){
+        nkaFile << "\n" << it.state << "\n";
 
-void RegnfaParser::printAcceptStates(map<int, vector<string>> acceptStatesMap){
-    for(auto it = acceptStatesMap.cbegin(); it != acceptStatesMap.cend(); it++){
-        cout << "Stanje: " << it->first << endl;
-        for(auto sc : it->second){
-            cout << sc << " ";
+        for(int i=0; i<it.stateTransitions.size(); i++){
+            nkaFile << i << " ";
+            for(auto se = it.stateTransitions[i].cbegin(); se != it.stateTransitions[i].cend(); se++){
+                nkaFile << se->first << " ";
+                for(auto th : se->second){
+                    nkaFile << th << " ";
+                }
+            }
+            nkaFile << "\n";
         }
-        cout << endl;
+        nkaFile << "\n";
+        for(auto se = it.acceptStatesMap.cbegin(); se != it.acceptStatesMap.cend(); se++){
+            nkaFile << se->first << " ";
+            for(auto th : se->second){
+                nkaFile << th << " ";
+            }
+            nkaFile << "\n";
+        }
     }
+    nkaFile.close();
 }
