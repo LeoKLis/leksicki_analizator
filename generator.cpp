@@ -8,6 +8,9 @@
 #include "regdefParser.h"
 #include "regnfaParser.h"
 
+#include "regdefParser.cpp"
+#include "regnfaParser.cpp"
+
 #include <iostream>
 #include <map>
 #include <string>

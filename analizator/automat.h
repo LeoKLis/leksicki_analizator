@@ -28,6 +28,9 @@ public:
     }
     NFA nfa;
     bool done;
+    string get_name(){
+        return nfa.state;
+    }
 
     int createState(){
         map<string, vector<int>> mapa;

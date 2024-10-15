@@ -141,3 +141,4 @@ vector<string> Automat::get_action(){
 
     return (nfa.acceptStatesMap).at(sorted_states.at(0));
 }
+
