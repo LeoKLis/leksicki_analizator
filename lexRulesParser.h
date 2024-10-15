@@ -35,15 +35,16 @@ struct LexRules {
 // so that they can be processed further by RegexToNFAParser
 class LexRulesParser {
 private:
-    static void parseLine(string line, LexRules &lexRules);
+    static void parseLine(string line, LexRules& lexRules);
 
-    static void appendRegdefs(string line, LexRules &lexRules);
-    static void appendStates(string line, LexRules &lexRules);
-    static void appendLexUnits(string line, LexRules &lexRules);
-    static void appendLexRules(string line, LexRules &lexRules);
+    static void appendRegdefs(string line, LexRules& lexRules);
+    static void appendStates(string line, LexRules& lexRules);
+    static void appendLexUnits(string line, LexRules& lexRules);
+    static void appendLexRules(string line, LexRules& lexRules);
 
     static bool isRegex(string regdef);
     static bool isLetter(char letter);
+
 public:
     static LexRules parse();
 };

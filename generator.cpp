@@ -7,13 +7,12 @@
 #include "regexToNFAParser.h"
 
 #include <vector>
-
 using namespace std;
 
 int main()
 {
     LexRules lexRules = LexRulesParser::parse();
-    vector<NFA> nfaArr = RegexToNFAParser::parse(lexRules.lexStates, lexRules.lexRuleMap);    
-    RegexToNFAParser::serialize("analizator/nfa_structure.txt", nfaArr);
+    vector<NFA> nfaArr = RegexToNFAParser::parse(lexRules.lexStates, lexRules.lexRuleMap);
+    RegexToNFAParser::serialize("analizator/nfa_structure.txt", lexRules.lexUnits, nfaArr);
     return 0;
 }

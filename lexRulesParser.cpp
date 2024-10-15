@@ -1,6 +1,7 @@
 #include "lexRulesParser.h"
 
-LexRules LexRulesParser::parse(){
+LexRules LexRulesParser::parse()
+{
     LexRules lexRules;
     string line;
     while (getline(cin, line)) {
@@ -11,7 +12,7 @@ LexRules LexRulesParser::parse(){
 
 // Takes input line, determines category for parsing and
 // forwards it to the corresponding function
-void LexRulesParser::parseLine(string line, LexRules &lexRules)
+void LexRulesParser::parseLine(string line, LexRules& lexRules)
 {
     if (line[0] == '{') {
         appendRegdefs(line, lexRules);
@@ -27,7 +28,7 @@ void LexRulesParser::parseLine(string line, LexRules &lexRules)
     }
 }
 
-void LexRulesParser::appendRegdefs(string line, LexRules &lexRules)
+void LexRulesParser::appendRegdefs(string line, LexRules& lexRules)
 {
     int emptyIndex = line.find(" ");
     string regdefName = line.substr(0, emptyIndex);
@@ -56,7 +57,7 @@ void LexRulesParser::appendRegdefs(string line, LexRules &lexRules)
     lexRules.regexMap.insert(make_pair(regdefName, regdefDefinition));
 }
 
-void LexRulesParser::appendStates(string line, LexRules &lexRules)
+void LexRulesParser::appendStates(string line, LexRules& lexRules)
 {
     line = line.substr(line.find(" ") + 1);
     string state;
@@ -68,7 +69,7 @@ void LexRulesParser::appendStates(string line, LexRules &lexRules)
     lexRules.lexStates.push_back(line);
 }
 
-void LexRulesParser::appendLexUnits(string line, LexRules &lexRules)
+void LexRulesParser::appendLexUnits(string line, LexRules& lexRules)
 {
     line = line.substr(line.find(" ") + 1);
     string state;
@@ -80,7 +81,7 @@ void LexRulesParser::appendLexUnits(string line, LexRules &lexRules)
     lexRules.lexUnits.push_back(line);
 }
 
-void LexRulesParser::appendLexRules(string line, LexRules &lexRules)
+void LexRulesParser::appendLexRules(string line, LexRules& lexRules)
 {
     int delimiterIndex = line.find('>');
     string stateName = line.substr(0, delimiterIndex + 1);
@@ -116,7 +117,7 @@ void LexRulesParser::appendLexRules(string line, LexRules &lexRules)
         rules.push_back(rule);
     }
 
-    lexRules.lexRuleMap[stateName].push_back({stateRegex, rules});
+    lexRules.lexRuleMap[stateName].push_back({ stateRegex, rules });
 }
 
 // Checks if regular definition definition is actually just regular expression
