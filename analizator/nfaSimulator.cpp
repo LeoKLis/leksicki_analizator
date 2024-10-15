@@ -1,5 +1,8 @@
+#include "nfaSimulator.h"
+
 #include "automat.h"
 
+#include <string>
 #include <map>
 #include <vector>
 #include <iostream>
@@ -7,137 +10,85 @@
 
 using namespace std;
 
-bool Automat::isFinished(){
+nfaSimulator::nfaSimulator(vector<Automat> nfaovi){
+    automati = nfaovi;
+    currentState=0;
+    redak=1;
+    int pocetak=0;
+    int zavrsetak=0; //iterator koji iterira
+    int posljednji=0; //
 
-    if(done==true){
-        done=false;
-        return true;
+    for(int i=0; i<nfaovi.size(); i++)
+        nfa_names.insert({automati.nfa.state, i});
+
+}
+
+void nfaSimulator::doAction(vector<string> action, string niz){
+    for(auto act : action){
+
+        if(act == "NOVI_REDAK")
+            redak=redak+1;
+        else if(act == "-")
+            continue;
+        else if(act.substr(0,act.find(" "))=="VRATI_SE"){
+            int broj = stoi(act.substr(act.find(" ")+1));
+            posljednji=pocetak+broj-1;
+        }
+        else if(act.substr(0,act.find(" ")) == "UDJI_U_STANJE"){
+            string newState = act.substr(act.find(" ")+1);
+            currentState = nfa_names.at(newState);
+            automati[currentState].restart();
+        }
+        else{
+            row WOR;
+            WOR.lexUnit=act;
+            WOR.rowNumber=redak;
+            WOR.uniformSymbol=niz;
+            finalTable.push_back(WOR);
+        }
     }
-
-    return false;
 }
 
-/*
-int NfaSimulator::createState(){
-    map<string, vector<int>> mapa;
-    (nfa.stateTransitions).push_back(mapa);
-    return nfa.size()-1;
-}
-*/
 
-void Automat::addTransition(int from, int to, string znak){
+void nfaSimulator::simulate(){
 
-    map<string, vector<int>> stateMap = nfa.stateTransitions.at(from);
+    string input;
 
-    if (stateMap.find(znak) != stateMap.end()) {
-        ((nfa.stateTransitions.at(from)).at(znak)).push_back(to);
-    } else {
-        vector<int> v;
-        v.push_back(to);
-        (nfa.stateTransitions.at(from)).insert({ znak, v });
-    }
-}
+    pocetak=0;
+    zavrsetak=0;
+    posljednji=0;
+    vector<string> izraz;
 
-void Automat::addTransition(int from, int to, char znak){
-    string novi_znak = {znak};
-    addTransition(from, to, novi_znak);
-}
+    while(getline(cin,input)){ //nema za procitat
 
-vector<int> Automat::transition(int state, char znak){
-    vector<int> next_states;
+        for(auto znak : input){
 
-    string novi_znak = {znak};
-
-    return (nfa.stateTransitions.at(state)).at(novi_znak);
-}
-
-set<int> Automat::epsilon(set<int> current){
-
-    set<int> next_states;
-
-    if(current.size()==0)
-        return next_states;
-
-
-    for(auto i: current){
-
-        map<string, vector<int>> mapa = nfa.stateTransitions.at(i);
-        string epsiloncek={'$'};
-        if(mapa.count(epsiloncek)){
-            for(auto j: transition(i, '$'))
-                next_states.insert(j);
+            switch automati[currentState].isFinished(){
+            case 0:
+                automati[currentState].readChar(znak);
+                zavrsetak=zavrsetak+1;
+                break;
+            case 1:
+                izraz=automati[currentState].get_action();
+                posljednji=zavrsetak;
+                zavrsetak=zavrsetak+1;
+                automati[currentState].readChar(znak);
+                break;
+            case 2:
+                if(izraz.empty()){
+                    pocetak=pocetak+1;
+                    zavrsetak=pocetak;
+                }
+                else{
+                    string niz = substr(niz, pocetak, posljednji-pocetak);
+                    doAction(izraz); //TREBA DODATI NIZ SIMBOLA KOJI SE KORISTE
+                    izraz.clear();
+                    pocetak=posljednji+1;
+                    zavrsetak=pocetak;
+                }
+                break;
+            }
         }
     }
 
-    set<int> more_next_states = epsilon(next_states);
-
-
-   for(auto i: more_next_states)
-        next_states.insert(i);
-
-    return next_states;
-}
-
-void Automat::readChar(char letter){
-    string znak = {letter};
-
-    //Epsilon okruzenje
-    set<int> temp;
-    for(auto i : epsilon(currentStates))
-        temp.insert(i);
-
-    for(auto i:temp)
-        currentStates.insert(i);
-
-
-    //ozbiljan dio sada
-
-
-    set<int> new_current;
-
-    for(auto i : currentStates){
-        if((nfa.stateTransitions.at(i)).count(znak)){
-            for(auto i: transition(i, letter))
-                new_current.insert(i);
-        }
-    }
-
-    if(new_current.size()==0)
-        done=true;
-    else
-        currentStates=new_current;
-
-
-}
-
-vector<string> Automat::get_action(){
-
-    vector<int> sorted_states;
-
-    vector<int> for_removal; //uklanjanje stanja koja nisu zavrsna iz trenutacnih stanja prije sortiranja
-    for(auto i:currentStates){
-        if(nfa.acceptStatesMap.find(i)==nfa.acceptStatesMap.end())
-          for_removal.push_back(i);
-    }
-    for(auto i:for_removal)
-        currentStates.erase(i);
-
-
-    for(auto i : currentStates)
-        sorted_states.push_back(i);
-
-    currentStates.clear();
-    currentStates.insert(0);
-
-    sort(sorted_states.begin(), sorted_states.end());
-
-
-
-    if(sorted_states.size()==0){
-        vector<string> prazno;
-        return prazno;
-    }
-
-
-    return (nfa.acceptStatesMap).at(sorted_states.at(0));
 }

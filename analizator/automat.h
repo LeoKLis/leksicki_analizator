@@ -19,35 +19,20 @@ struct NFA {
 class Automat {
 private:
     set<int> currentStates;
-    //int transition(int state, char znak);
-    void epsilon();
+    set<int> epsilon(set<int>);
+    vector<int> transition(int state, char znak);
 public:
     Automat(){
         currentStates.insert(0); //prvo stanje je p0
-        done=false;
     }
     NFA nfa;
     bool done;
-    string get_name(){
-        return nfa.state;
-    }
 
-    int createState(){
-        map<string, vector<int>> mapa;
-        (nfa.stateTransitions).push_back(mapa);
-        return nfa.stateTransitions.size()-1;
-    }
-
-    vector<int> transition(int state, char znak);
-    void addTransition(int from, int to, string znak);
-    void addTransition(int from, int to, char znak);
-    bool isFinished();
-    set<int> epsilon(set<int>);
+    int isFinished();
     void readChar(char letter);
     vector<string> get_action();
 
-
-    //kreiranje toga
+    void restart();
 
 
 

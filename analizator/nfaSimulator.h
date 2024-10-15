@@ -1,5 +1,7 @@
-#ifndef AUTOMAT_H
-#define AUTOMAT_H
+#ifndef NFA_SIMULATOR_H
+#define NFA_SIMULATOR_H
+
+#include "automat.h"
 
 #include<string>
 #include<map>
@@ -16,38 +18,29 @@ struct NFA {
     map<int, vector<string>> acceptStatesMap;
 };
 
-class Automat {
+struct row {
+    string uniformSymbol;
+    int rowNumber; // to je broj retka u programu(row in program) rege
+    string lexUnit;
+};
+
+class nfaSimulator {
 private:
-    set<int> currentStates;
-    //int transition(int state, char znak);
-    void epsilon();
+    vector<Automat> automati;
+    map<string,int> nfa_names;
+    int currentState;
+
+    void doAction(vector<string>);
+    int redak;
+    int pocetak=0;
+    int zavrsetak=0;
+    int posljednji=0;
+
 public:
-    Automat(){
-        currentStates.insert(0); //prvo stanje je p0
-        done=false;
-    }
-    NFA nfa;
-    bool done;
+    nfaSimulator(vector<Automat> nfaovi);
+    void simulate()
 
-    int createState(){
-        map<string, vector<int>> mapa;
-        (nfa.stateTransitions).push_back(mapa);
-        return nfa.stateTransitions.size()-1;
-    }
-
-    vector<int> transition(int state, char znak);
-    void addTransition(int from, int to, string znak);
-    void addTransition(int from, int to, char znak);
-    bool isFinished();
-    set<int> epsilon(set<int>);
-    void readChar(char letter);
-    vector<string> get_action();
-
-
-    //kreiranje toga
-
-
-
+    vector<row> finalTable;
 };
 
 #endif

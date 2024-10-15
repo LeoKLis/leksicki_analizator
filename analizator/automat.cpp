@@ -7,49 +7,22 @@
 
 using namespace std;
 
-bool Automat::isFinished(){
+int Automat::isFinished(){ //0 - nema finalnih, ali ima stanja; 1 - ima i finalnih i mozda obicnih; 2  - nema stanja
 
-    if(done==true){
-        done=false;
-        return true;
+    if(currentStates.size()==0){
+        return 2;
+    }
+    if(currentStates.size()>0){
+        for(auto i:currentStates){
+            if(nfa.acceptStatesMap.find(i)!=nfa.acceptStatesMap.end())
+                return 1;
+        }
     }
 
-    return false;
+    return 0;
 }
 
-/*
-int NfaSimulator::createState(){
-    map<string, vector<int>> mapa;
-    (nfa.stateTransitions).push_back(mapa);
-    return nfa.size()-1;
-}
-*/
 
-void Automat::addTransition(int from, int to, string znak){
-
-    map<string, vector<int>> stateMap = nfa.stateTransitions.at(from);
-
-    if (stateMap.find(znak) != stateMap.end()) {
-        ((nfa.stateTransitions.at(from)).at(znak)).push_back(to);
-    } else {
-        vector<int> v;
-        v.push_back(to);
-        (nfa.stateTransitions.at(from)).insert({ znak, v });
-    }
-}
-
-void Automat::addTransition(int from, int to, char znak){
-    string novi_znak = {znak};
-    addTransition(from, to, novi_znak);
-}
-
-vector<int> Automat::transition(int state, char znak){
-    vector<int> next_states;
-
-    string novi_znak = {znak};
-
-    return (nfa.stateTransitions.at(state)).at(novi_znak);
-}
 
 set<int> Automat::epsilon(set<int> current){
 
@@ -85,13 +58,11 @@ void Automat::readChar(char letter){
     set<int> temp;
     for(auto i : epsilon(currentStates))
         temp.insert(i);
-
     for(auto i:temp)
         currentStates.insert(i);
 
 
     //ozbiljan dio sada
-
 
     set<int> new_current;
 
@@ -102,11 +73,13 @@ void Automat::readChar(char letter){
         }
     }
 
-    if(new_current.size()==0)
-        done=true;
-    else
-        currentStates=new_current;
+    currentStates=new_current;
+}
 
+void Automat::restart(){
+
+    currentStates.clear();
+    currentStates.insert(0);
 
 }
 
@@ -114,31 +87,18 @@ vector<string> Automat::get_action(){
 
     vector<int> sorted_states;
 
-    vector<int> for_removal; //uklanjanje stanja koja nisu zavrsna iz trenutacnih stanja prije sortiranja
-    for(auto i:currentStates){
-        if(nfa.acceptStatesMap.find(i)==nfa.acceptStatesMap.end())
-          for_removal.push_back(i);
-    }
-    for(auto i:for_removal)
-        currentStates.erase(i);
 
+    vector<int> copy_current;
 
-    for(auto i : currentStates)
-        sorted_states.push_back(i);
-
-    currentStates.clear();
-    currentStates.insert(0);
-
-    sort(sorted_states.begin(), sorted_states.end());
-
-
-
-    if(sorted_states.size()==0){
-        vector<string> prazno;
-        return prazno;
+    for(auto i : currentStates){
+        if(nfa.acceptStatesMap.count(i))
+            copy_current.push_back(i);
     }
 
+    sort(copy_current.begin(), copy_current.end());
 
-    return (nfa.acceptStatesMap).at(sorted_states.at(0));
+    if(copy_current.size()==0)
+        return sorted_states;
+    return copy_current.at(0);
 }
 
