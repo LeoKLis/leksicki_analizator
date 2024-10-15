@@ -1,30 +1,40 @@
-#include "regdefParser.h"
+#include "lexRulesParser.h"
+
+LexRules LexRulesParser::parse()
+{
+    LexRules lexRules;
+    string line;
+    while (getline(cin, line)) {
+        parseLine(line, lexRules);
+    }
+    return lexRules;
+}
 
 // Takes input line, determines category for parsing and
 // forwards it to the corresponding function
-void RegdefParser::parseLine(string line)
+void LexRulesParser::parseLine(string line, LexRules& lexRules)
 {
     if (line[0] == '{') {
-        appendRegdefs(line);
+        appendRegdefs(line, lexRules);
     }
     if (line.substr(0, 2) == "%X") {
-        appendStates(line);
+        appendStates(line, lexRules);
     }
     if (line.substr(0, 2) == "%L") {
-        appendLexUnits(line);
+        appendLexUnits(line, lexRules);
     }
     if (line[0] == '<') {
-        appendLexRules(line);
+        appendLexRules(line, lexRules);
     }
 }
 
-void RegdefParser::appendRegdefs(string line)
+void LexRulesParser::appendRegdefs(string line, LexRules& lexRules)
 {
     int emptyIndex = line.find(" ");
     string regdefName = line.substr(0, emptyIndex);
     string regdefDefinition = line.substr(emptyIndex + 1);
     if (isRegex(regdefDefinition)) {
-        regexMap.insert(make_pair(regdefName, regdefDefinition));
+        lexRules.regexMap.insert(make_pair(regdefName, regdefDefinition));
         return;
     }
     for (int i = 0; i < regdefDefinition.length(); i++) {
@@ -40,38 +50,38 @@ void RegdefParser::appendRegdefs(string line)
                 }
             }
             string regdef = regdefDefinition.substr(i, j - i + 1);
-            if (regexMap.count(regdef))
-                regdefDefinition.replace(i, j - i + 1, '(' + regexMap.at(regdef) + ')');
+            if (lexRules.regexMap.count(regdef))
+                regdefDefinition.replace(i, j - i + 1, '(' + lexRules.regexMap.at(regdef) + ')');
         }
     }
-    regexMap.insert(make_pair(regdefName, regdefDefinition));
+    lexRules.regexMap.insert(make_pair(regdefName, regdefDefinition));
 }
 
-void RegdefParser::appendStates(string line)
+void LexRulesParser::appendStates(string line, LexRules& lexRules)
 {
     line = line.substr(line.find(" ") + 1);
     string state;
     while (line.find(" ") != string::npos) {
         state = line.substr(0, line.find(" "));
-        states.push_back(state);
+        lexRules.lexStates.push_back(state);
         line = line.substr(line.find(" ") + 1);
     }
-    states.push_back(line);
+    lexRules.lexStates.push_back(line);
 }
 
-void RegdefParser::appendLexUnits(string line)
+void LexRulesParser::appendLexUnits(string line, LexRules& lexRules)
 {
     line = line.substr(line.find(" ") + 1);
     string state;
     while (line.find(" ") != string::npos) {
         state = line.substr(0, line.find(" "));
-        lexUnits.push_back(state);
+        lexRules.lexUnits.push_back(state);
         line = line.substr(line.find(" ") + 1);
     }
-    lexUnits.push_back(line);
+    lexRules.lexUnits.push_back(line);
 }
 
-void RegdefParser::appendLexRules(string line)
+void LexRulesParser::appendLexRules(string line, LexRules& lexRules)
 {
     int delimiterIndex = line.find('>');
     string stateName = line.substr(0, delimiterIndex + 1);
@@ -91,8 +101,8 @@ void RegdefParser::appendLexRules(string line)
                     }
                 }
                 string regdef = stateRegex.substr(i, j - i + 1);
-                if (regexMap.count(regdef))
-                    stateRegex.replace(i, j - i + 1, '(' + regexMap.at(regdef) + ')');
+                if (lexRules.regexMap.count(regdef))
+                    stateRegex.replace(i, j - i + 1, '(' + lexRules.regexMap.at(regdef) + ')');
             }
         }
     }
@@ -107,55 +117,16 @@ void RegdefParser::appendLexRules(string line)
         rules.push_back(rule);
     }
 
-    lexRuleMap[stateName].push_back({stateRegex, rules});
+    lexRules.lexRuleMap[stateName].push_back({ stateRegex, rules });
 }
 
 // Checks if regular definition definition is actually just regular expression
-bool RegdefParser::isRegex(string regdefDef)
+bool LexRulesParser::isRegex(string regdefDef)
 {
     return !regex_search(regdefDef, regex("\\{[a-zA-Z]+\\}"));
 }
 
-bool RegdefParser::isLetter(char letter)
+bool LexRulesParser::isLetter(char letter)
 {
     return (letter >= 'a' && letter <= 'z') || (letter >= 'A' && letter <= 'Z');
-}
-
-void RegdefParser::printRegexMap()
-{
-    for (auto it = regexMap.cbegin(); it != regexMap.cend(); it++) {
-        cout << it->first << " -> " << it->second << endl;
-    }
-}
-
-void RegdefParser::printStates()
-{
-    for (auto it = states.begin(); it < states.end(); it++) {
-        cout << *it << " ";
-    }
-    cout << "\n";
-}
-
-void RegdefParser::printLexicalUnits()
-{
-    for (auto it = lexUnits.begin(); it < lexUnits.end(); it++) {
-        cout << *it << " ";
-    }
-    cout << "\n";
-}
-
-void RegdefParser::printLexicalRules()
-{
-    cout << lexRuleMap.size() << "\n\n";
-    for (auto it = lexRuleMap.cbegin(); it != lexRuleMap.cend(); it++) {
-        cout << it->first << "\n";
-        for(auto se : it->second){
-            cout << "\t" << se.first << "\n";
-            for(auto th : se.second){
-                cout << th << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-    }
 }

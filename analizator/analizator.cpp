@@ -1,13 +1,9 @@
-#include "nfaSimulator.h"
+// #include "nfaSimulator.h"
+#include "nfaDeserializer.h"
 #include <vector>
 
-int main(){
-    vector<NfaSimulator> ns;
-
-    //for(/* citaj_iz_txt_datoteke */){
-        // serijaliziraj za svako stanje...
-    //}
-
-    int currentState = 0;
-    
+int main()
+{
+    vector<NFA> nfaArray = NfaDeserializer::deserializeNfas("nfa_structure.txt");
+    vector<string> lexUnits = NfaDeserializer::deserializeLexUnits("nfa_structure.txt");
 }
