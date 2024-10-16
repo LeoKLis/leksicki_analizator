@@ -1,5 +1,13 @@
 #include "regexToNFAParser.h"
 
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
+
+using namespace std;
+
 NFA RegexToNFAParser::parseRegex(string stateName, LEX_RULES_STRUCTURE rules)
 {
     NFA_STRUCTURE stateTransitions;

@@ -1,21 +1,14 @@
 #ifndef NFA_DESERIALIZER_H
 #define NFA_DESERIALIZER_H
 
+#include "nfa.h"
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
 
-#define NFA_STRUCTURE vector<map<string, vector<int>>>
-
 using namespace std;
-
-struct NFA {
-    string state;
-    NFA_STRUCTURE stateTransitions;
-    map<int, vector<string>> acceptStatesMap;
-};
 
 class NfaDeserializer {
 private:

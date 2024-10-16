@@ -1,5 +1,11 @@
 #include "lexRulesParser.h"
 
+#include <iostream>
+#include <map>
+#include <regex>
+#include <string>
+#include <vector>
+
 LexRules LexRulesParser::parse()
 {
     LexRules lexRules;

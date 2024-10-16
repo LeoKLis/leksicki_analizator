@@ -1,17 +1,9 @@
 #ifndef REGNFA_PARSER_H
 #define REGNFA_PARSER_H
 
-#include <fstream>
-#include <iostream>
-#include <map>
-#include <string>
-#include <vector>
-
 #define EPSILON "$"
 #define NFA_STRUCTURE vector<map<string, vector<int>>>
 #define LEX_RULES_STRUCTURE vector<pair<string, vector<string>>>
-
-using namespace std;
 
 // Structure that stores epsilon-NFA transitions and accepting states
 // @param stateTransitions contains epsilon-NFA transitions stored in vector

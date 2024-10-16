@@ -1,46 +1,46 @@
 #ifndef NFA_SIMULATOR_H
 #define NFA_SIMULATOR_H
 
-#include "automat.h"
-
-#include<string>
-#include<map>
-#include<vector>
-#include <set>
-
-#define NFA_STRUCTURE vector<map<string, vector<int>>>
+#include "nfa.h"
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
 
 using namespace std;
 
-struct NFA {
-    string state;
-    NFA_STRUCTURE stateTransitions;
-    map<int, vector<string>> acceptStatesMap;
-};
-
-struct row {
-    string uniformSymbol;
-    int rowNumber; // to je broj retka u programu(row in program) rege
-    string lexUnit;
-};
-
-class nfaSimulator {
+class NfaSimulator {
 private:
-    vector<Automat> automati;
-    map<string,int> nfa_names;
-    int currentState;
+    struct Row {
+        string uniformSymbol;
+        int rowNumber; // to je broj retka u programu(row in program) rege
+        string lexUnit;
+    };
+    vector<Row> finalTable;
+    
 
-    void doAction(vector<string>);
+    vector<NFA> automati;
+    map<string, int> nfaNames;
+    int currentState;
     int redak;
-    int pocetak=0;
-    int zavrsetak=0;
-    int posljednji=0;
+    int pocetak;
+    int zavrsetak;
+    int posljednji;
+
+    // Applies an action given to it
+    // 1. "NOVI_REDAK" - adds +1 to redak
+    // 2. "-" - ignores input and continues
+    // 3. "VRATI_SE" - returns to nth number, stores it and continues from there
+    // 4. "UDJI_U_STANJE" - goes into state that was given to it
+    // 5. DEFAULT - appends uniform symbol, redak, lexUnit to row
+    void doAction(vector<string> action, string niz);
 
 public:
-    nfaSimulator(vector<Automat> nfaovi);
-    void simulate()
-
-    vector<row> finalTable;
+    string codeString;
+    NfaSimulator(vector<NFA> nfaovi);
+    void loadFromStdin();
+    void simulate();
+    void printTable();
 };
 
 #endif

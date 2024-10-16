@@ -1,94 +1,104 @@
 #include "nfaSimulator.h"
 
-#include "automat.h"
-
-#include <string>
-#include <map>
-#include <vector>
-#include <iostream>
-#include <bits/stdc++.h>
-
-using namespace std;
-
-nfaSimulator::nfaSimulator(vector<Automat> nfaovi){
+NfaSimulator::NfaSimulator(vector<NFA> nfaovi)
+{
     automati = nfaovi;
-    currentState=0;
-    redak=1;
-    int pocetak=0;
-    int zavrsetak=0; //iterator koji iterira
-    int posljednji=0; //
+    currentState = 0;
+    redak = 1;
+    int pocetak = 0;
+    int zavrsetak = 0; // Iterator index
+    int posljednji = 0;
 
-    for(int i=0; i<nfaovi.size(); i++)
-        nfa_names.insert({automati.nfa.state, i});
-
+    for (int i = 0; i < nfaovi.size(); i++)
+        nfaNames.insert({ nfaovi[i].name, i });
 }
 
-void nfaSimulator::doAction(vector<string> action, string niz){
-    for(auto act : action){
+void NfaSimulator::doAction(vector<string> actions, string niz)
+{
+    cout << "BILO STA :(" << endl;
+    for (auto act : actions) {
+        if (act == "NOVI_REDAK")
+            {cout << "NOVI_REDAK" << endl;
+            redak = redak + 1;}
+        else if (act == "-")
+            {cout << "IGNOR" << endl;
+            continue;}
+        else if (act.substr(0, act.find(" ")) == "VRATI_SE") {
+            cout << "VRATI_SE" << endl;
 
-        if(act == "NOVI_REDAK")
-            redak=redak+1;
-        else if(act == "-")
-            continue;
-        else if(act.substr(0,act.find(" "))=="VRATI_SE"){
-            int broj = stoi(act.substr(act.find(" ")+1));
-            posljednji=pocetak+broj-1;
-        }
-        else if(act.substr(0,act.find(" ")) == "UDJI_U_STANJE"){
-            string newState = act.substr(act.find(" ")+1);
-            currentState = nfa_names.at(newState);
+            int broj = stoi(act.substr(act.find(" ") + 1));
+            posljednji = pocetak + broj - 1;
+        } else if (act.substr(0, act.find(" ")) == "UDJI_U_STANJE") {
+            cout << "UDJI_U_STANJE" << endl;
+            string newState = act.substr(act.find(" ") + 1);
+            currentState = nfaNames.at(newState);
             automati[currentState].restart();
-        }
-        else{
-            row WOR;
-            WOR.lexUnit=act;
-            WOR.rowNumber=redak;
-            WOR.uniformSymbol=niz;
-            finalTable.push_back(WOR);
+        } else {
+            cout << "PISI_U_TABL" << endl;
+            Row row;
+            row.lexUnit = act;
+            row.rowNumber = redak;
+            row.uniformSymbol = niz;
+            finalTable.push_back(row);
         }
     }
 }
 
-
-void nfaSimulator::simulate(){
-
+void NfaSimulator::loadFromStdin(){
     string input;
-
-    pocetak=0;
-    zavrsetak=0;
-    posljednji=0;
+    getline(cin, input);
+    codeString.append(input);
+    while(getline(cin, input)){
+        codeString.append("\\n" + input);
+    }
+}
+// 
+void NfaSimulator::simulate()
+{
     vector<string> izraz;
-
-    while(getline(cin,input)){ //nema za procitat
-
-        for(auto znak : input){
-
-            switch automati[currentState].isFinished(){
-            case 0:
+    
+    while (zavrsetak < codeString.length()) {
+        cout << "Hello!?" << endl;
+        char znak = codeString[zavrsetak];
+        switch (automati[currentState].isFinished()) {
+        case 0:
+            if(!automati[currentState].readChar(znak)){
+                zavrsetak += 1;
+                znak = codeString[zavrsetak];
                 automati[currentState].readChar(znak);
-                zavrsetak=zavrsetak+1;
-                break;
-            case 1:
-                izraz=automati[currentState].get_action();
-                posljednji=zavrsetak;
-                zavrsetak=zavrsetak+1;
-                automati[currentState].readChar(znak);
-                break;
-            case 2:
-                if(izraz.empty()){
-                    pocetak=pocetak+1;
-                    zavrsetak=pocetak;
-                }
-                else{
-                    string niz = substr(niz, pocetak, posljednji-pocetak);
-                    doAction(izraz); //TREBA DODATI NIZ SIMBOLA KOJI SE KORISTE
-                    izraz.clear();
-                    pocetak=posljednji+1;
-                    zavrsetak=pocetak;
-                }
-                break;
             }
+            zavrsetak = zavrsetak + 1;
+            break;
+        case 1:
+            izraz = automati[currentState].getAction();
+            posljednji = zavrsetak;
+            zavrsetak = zavrsetak + 1;
+            if(!automati[currentState].readChar(znak)){
+                zavrsetak += 1;
+                znak = codeString[zavrsetak];
+                automati[currentState].readChar(znak);
+            }
+            break;
+        case 2:
+            if (izraz.empty()) {
+                automati[currentState].restart();
+                pocetak = pocetak + 1;
+                zavrsetak = pocetak;
+            } else {
+                string niz = niz.substr(pocetak, posljednji - pocetak);
+                doAction(izraz, niz); // TREBA DODATI NIZ SIMBOLA KOJI SE KORISTE
+                izraz.clear();
+                pocetak = posljednji + 1;
+                zavrsetak = pocetak;
+            }
+            break;
         }
     }
+}
 
+void NfaSimulator::printTable()
+{
+    for (auto it : finalTable) {
+        cout << it.lexUnit << " " << it.rowNumber << " " << it.uniformSymbol << "\n";
+    }
 }

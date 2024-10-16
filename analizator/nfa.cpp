@@ -1,0 +1,100 @@
+#include "nfa.h"
+
+NFA::NFA()
+{
+    currentStates.insert(0);
+}
+
+NFA::NFA(string nfaName, NFA_STRUCTURE stateTransitions, map<int, vector<string>> acceptStatesMap)
+{
+    name = nfaName;
+    nfaStructure = stateTransitions;
+    this->acceptStatesMap = acceptStatesMap;
+    currentStates.insert(0);
+}
+
+int NFA::isFinished()
+{ // 0 - nema finalnih, ali ima stanja; 1 - ima i finalnih i mozda obicnih; 2  - nema stanja
+    if (currentStates.size() == 0) {
+        return 2;
+    }
+    if (currentStates.size() > 0) {
+        for (auto i : currentStates) {
+            if (acceptStatesMap.find(i) != acceptStatesMap.end())
+                return 1;
+        }
+    }
+    return 0;
+}
+
+set<int> NFA::resolveEpsilonEnviroment(set<int> current)
+{
+    if (current.empty())
+        return current;
+
+    set<int> nextStates;
+    for (auto i : current) {
+        if (nfaStructure[i].count("$")) {
+            for (auto j : nfaStructure[i]["$"])
+                nextStates.insert(j);
+        }
+    }
+
+    set<int> more_next_states = resolveEpsilonEnviroment(nextStates);
+
+    for (auto i : more_next_states)
+        nextStates.insert(i);
+    return nextStates;
+}
+
+// \\n
+//    ||
+bool NFA::readChar(char symbol)
+{
+    cout << "tu sam sad: " << symbol  << endl;
+    string znak = string { symbol };
+    // \ nije char pa false
+    if(symbol == '\\' && !prefiksirano){
+        prefiksirano = true;        
+        return false;
+    }
+    else if(prefiksirano){
+        znak = "\\" + znak;
+        prefiksirano = false;
+    }
+
+    // Epsilon okruzenje
+    set<int> newStates = resolveEpsilonEnviroment(currentStates);
+    currentStates.insert(newStates.begin(), newStates.end());
+
+    set<int> newCurrent;
+    for (auto i : currentStates) {
+        if (nfaStructure[i].count( znak )) {
+            for (auto i : nfaStructure[i][ znak ])
+                newCurrent.insert(i);
+        }
+    }
+    currentStates = newCurrent;
+    return true;
+}
+
+void NFA::restart()
+{
+    currentStates.clear();
+    currentStates.insert(0);
+}
+
+vector<string> NFA::getAction()
+{
+    vector<int> copy_current;
+    for (auto i : currentStates) {
+        if (acceptStatesMap.count(i))
+            copy_current.push_back(i);
+    }
+
+    sort(copy_current.begin(), copy_current.end());
+
+    if (copy_current.empty())
+        return vector<string> {};
+    return acceptStatesMap[copy_current[0]];
+}

@@ -72,7 +72,7 @@ vector<string> NfaDeserializer::deserializeLexUnits(string filePath)
 void NfaDeserializer::printAcceptStates(vector<NFA> nfas)
 {
     for (auto it : nfas) {
-        cout << it.state << endl;
+        cout << it.name << endl;
         for (auto se = it.acceptStatesMap.cbegin(); se != it.acceptStatesMap.cend(); se++) {
             cout << se->first << " ";
             for (auto th : se->second) {
@@ -87,9 +87,9 @@ void NfaDeserializer::printAcceptStates(vector<NFA> nfas)
 void NfaDeserializer::printNfas(vector<NFA> nfas)
 {
     for (auto it : nfas) {
-        cout << it.state << endl;
+        cout << it.name << endl;
         int stateCount = 0;
-        for (auto se : it.stateTransitions) {
+        for (auto se : it.nfaStructure) {
             cout << stateCount++ << " ";
             for (auto th = se.cbegin(); th != se.cend(); th++) {
                 cout << th->first << " ";
