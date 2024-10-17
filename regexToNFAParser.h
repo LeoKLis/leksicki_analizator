@@ -5,6 +5,14 @@
 #define NFA_STRUCTURE vector<map<string, vector<int>>>
 #define LEX_RULES_STRUCTURE vector<pair<string, vector<string>>>
 
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
+
+using namespace std;
+
 // Structure that stores epsilon-NFA transitions and accepting states
 // @param stateTransitions contains epsilon-NFA transitions stored in vector
 // @param acceptStatesMap contains accept states and their action stored in map
@@ -16,7 +24,6 @@ struct NFA {
 
 class RegexToNFAParser {
 private:
-    static NFA parseRegex(string stateName, LEX_RULES_STRUCTURE rules);
     static void constructNFA(NFA_STRUCTURE* stateTransitions, int start, int end, string reg, int* stateCount);
     static int createState(NFA_STRUCTURE* stateTransitions, int* stateCount);
     static void addTransition(NFA_STRUCTURE* stateTransitions, int from, int to, string znak);
@@ -29,7 +36,9 @@ public:
     // @param lexRuleMap map of lexical rules for each state
     // @returns array of epsilon NFAs for each state
     static vector<NFA> parse(vector<string> lexStates, map<string, vector<pair<string, vector<string>>>> lexRuleMap);
+    static NFA parseRegex(string stateName, LEX_RULES_STRUCTURE rules);
     static void serialize(string fileName, vector<string> lexUnits, vector<NFA> nfaArr);
+    static void printNFA(vector<NFA> nfas);
 };
 
-#endif /*REGNFA_PARSER_H*/
+#endif

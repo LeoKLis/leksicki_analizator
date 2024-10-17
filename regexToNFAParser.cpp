@@ -31,6 +31,8 @@ void RegexToNFAParser::constructNFA(NFA_STRUCTURE* stateTransitions, int startSt
     vector<string> izbori;
     int last_grouped = 0;
     int brackets = 0;
+
+
     for (int i = 0; i < regex.length(); i++) {
         if (regex[i] == '(' && isOperator(regex, i))
             brackets = brackets + 1;
@@ -43,7 +45,7 @@ void RegexToNFAParser::constructNFA(NFA_STRUCTURE* stateTransitions, int startSt
             last_grouped = i + 1;
         }
     }
-    izbori.push_back(regex.substr(last_grouped)); // grupiranje ostatka
+    izbori.push_back(regex.substr(last_grouped, regex.length()-last_grouped)); // grupiranje ostatka
 
     if (izbori.size() > 1) {
         for (int i = 0; i < izbori.size(); i++) {
@@ -60,7 +62,13 @@ void RegexToNFAParser::constructNFA(NFA_STRUCTURE* stateTransitions, int startSt
             if (prefiksirano == true) {
                 prefiksirano = false;
                 string prijelazni_znak;
-                prijelazni_znak = "\\" + string { regex[i] };
+                if(regex[i] == '*' || regex[i] == '(' || regex[i] == ')' || regex[i] == '|' || regex[i] == '\\'){
+                    prijelazni_znak = string{ regex[i] };
+                    // cout << regex[i-1] << " " << prijelazni_znak << endl;
+                }
+                else{
+                    prijelazni_znak = "\\" + string{ regex[i]};
+                }
                 a = createState(stateTransitions, stateCount);
                 b = createState(stateTransitions, stateCount);
                 addTransition(stateTransitions, a, b, prijelazni_znak);
@@ -98,6 +106,8 @@ void RegexToNFAParser::constructNFA(NFA_STRUCTURE* stateTransitions, int startSt
                     // cout<<"ipak nisu";
                     i = j;
                 }
+
+
             }
 
             // provjera ponavljanja (kleenov operator)
@@ -144,8 +154,8 @@ void RegexToNFAParser::addTransition(NFA_STRUCTURE* stateTransitions, int from, 
 bool RegexToNFAParser::isOperator(string reg, int i)
 {
     int br = 0;
-    while (i - 1 > 0 && reg[i - 1] == '\\') {
-        br++;
+    while (i - 1 >= 0 && reg[i - 1] == '\\') {
+        br=br+1;
         i = i - 1;
     }
     return (br % 2 == 0);
@@ -191,4 +201,21 @@ void RegexToNFAParser::serialize(string fileName, vector<string> lexUnits, vecto
         }
     }
     nfaFile.close();
+}
+
+void RegexToNFAParser::printNFA(vector<NFA> nfas){
+    for(auto it : nfas){
+        cout << it.state << endl;
+        int index = 0;
+        for(auto se : it.stateTransitions){
+            for(auto th = se.cbegin(); th != se.cend(); th++){
+                cout << index++ << " " << th->first << " ";
+                for(auto fo : th->second){
+                    cout << fo << " ";
+                }
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
 }

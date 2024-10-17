@@ -5,9 +5,9 @@ NfaSimulator::NfaSimulator(vector<NFA> nfaovi)
     automati = nfaovi;
     currentState = 0;
     redak = 1;
-    int pocetak = 0;
-    int zavrsetak = 0; // Iterator index
-    int posljednji = 0;
+    pocetak = 0;
+    zavrsetak = 0; // Iterator index
+    posljednji = -1;
 
     for (int i = 0; i < nfaovi.size(); i++)
         nfaNames.insert({ nfaovi[i].name, i });
@@ -15,26 +15,19 @@ NfaSimulator::NfaSimulator(vector<NFA> nfaovi)
 
 void NfaSimulator::doAction(vector<string> actions, string niz)
 {
-    cout << "BILO STA :(" << endl;
     for (auto act : actions) {
         if (act == "NOVI_REDAK")
-            {cout << "NOVI_REDAK" << endl;
-            redak = redak + 1;}
+            redak = redak + 1;
         else if (act == "-")
-            {cout << "IGNOR" << endl;
-            continue;}
+            continue;
         else if (act.substr(0, act.find(" ")) == "VRATI_SE") {
-            cout << "VRATI_SE" << endl;
-
             int broj = stoi(act.substr(act.find(" ") + 1));
             posljednji = pocetak + broj - 1;
         } else if (act.substr(0, act.find(" ")) == "UDJI_U_STANJE") {
-            cout << "UDJI_U_STANJE" << endl;
             string newState = act.substr(act.find(" ") + 1);
             currentState = nfaNames.at(newState);
             automati[currentState].restart();
         } else {
-            cout << "PISI_U_TABL" << endl;
             Row row;
             row.lexUnit = act;
             row.rowNumber = redak;
@@ -45,10 +38,11 @@ void NfaSimulator::doAction(vector<string> actions, string niz)
 }
 
 void NfaSimulator::loadFromStdin(){
+    ifstream file("c_program.c");
     string input;
-    getline(cin, input);
+    getline(file, input);
     codeString.append(input);
-    while(getline(cin, input)){
+    while(getline(file, input)){
         codeString.append("\\n" + input);
     }
 }
@@ -58,12 +52,11 @@ void NfaSimulator::simulate()
     vector<string> izraz;
     
     while (zavrsetak < codeString.length()) {
-        cout << "Hello!?" << endl;
         char znak = codeString[zavrsetak];
         switch (automati[currentState].isFinished()) {
         case 0:
             if(!automati[currentState].readChar(znak)){
-                zavrsetak += 1;
+                zavrsetak = zavrsetak + 1;
                 znak = codeString[zavrsetak];
                 automati[currentState].readChar(znak);
             }
@@ -74,6 +67,7 @@ void NfaSimulator::simulate()
             posljednji = zavrsetak;
             zavrsetak = zavrsetak + 1;
             if(!automati[currentState].readChar(znak)){
+                posljednji += 1;
                 zavrsetak += 1;
                 znak = codeString[zavrsetak];
                 automati[currentState].readChar(znak);
@@ -85,7 +79,7 @@ void NfaSimulator::simulate()
                 pocetak = pocetak + 1;
                 zavrsetak = pocetak;
             } else {
-                string niz = niz.substr(pocetak, posljednji - pocetak);
+                string niz = codeString.substr(pocetak, posljednji - pocetak);
                 doAction(izraz, niz); // TREBA DODATI NIZ SIMBOLA KOJI SE KORISTE
                 izraz.clear();
                 pocetak = posljednji + 1;

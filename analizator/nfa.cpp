@@ -2,7 +2,10 @@
 
 NFA::NFA()
 {
+    prefiksirano = false;
     currentStates.insert(0);
+    set<int> newStates = resolveEpsilonEnviroment(currentStates);
+    currentStates.insert(newStates.begin(), newStates.end());
 }
 
 NFA::NFA(string nfaName, NFA_STRUCTURE stateTransitions, map<int, vector<string>> acceptStatesMap)
@@ -10,11 +13,16 @@ NFA::NFA(string nfaName, NFA_STRUCTURE stateTransitions, map<int, vector<string>
     name = nfaName;
     nfaStructure = stateTransitions;
     this->acceptStatesMap = acceptStatesMap;
+    prefiksirano = false;
     currentStates.insert(0);
+    set<int> newStates = resolveEpsilonEnviroment(currentStates);
+    currentStates.insert(newStates.begin(), newStates.end());
 }
 
 int NFA::isFinished()
 { // 0 - nema finalnih, ali ima stanja; 1 - ima i finalnih i mozda obicnih; 2  - nema stanja
+    set<int> newStates = resolveEpsilonEnviroment(currentStates);
+    currentStates.insert(newStates.begin(), newStates.end());
     if (currentStates.size() == 0) {
         return 2;
     }
@@ -51,7 +59,6 @@ set<int> NFA::resolveEpsilonEnviroment(set<int> current)
 //    ||
 bool NFA::readChar(char symbol)
 {
-    cout << "tu sam sad: " << symbol  << endl;
     string znak = string { symbol };
     // \ nije char pa false
     if(symbol == '\\' && !prefiksirano){
@@ -82,10 +89,16 @@ void NFA::restart()
 {
     currentStates.clear();
     currentStates.insert(0);
+    set<int> newStates = resolveEpsilonEnviroment(currentStates);
+    currentStates.insert(newStates.begin(), newStates.end());
 }
 
 vector<string> NFA::getAction()
 {
+
+    set<int> newStates = resolveEpsilonEnviroment(currentStates);
+    currentStates.insert(newStates.begin(), newStates.end());
+
     vector<int> copy_current;
     for (auto i : currentStates) {
         if (acceptStatesMap.count(i))

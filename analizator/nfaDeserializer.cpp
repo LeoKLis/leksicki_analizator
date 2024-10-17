@@ -7,7 +7,18 @@ string NfaDeserializer::readChar(string& line)
         return "npos";
     }
     string output = line.substr(0, firstBlank);
-    line = line.substr(firstBlank + 1);
+    if(output == "UDJI_U_STANJE" || output == "VRATI_SE"){
+        line = line.substr(firstBlank + 1);
+        int firstBlank;
+        if ((firstBlank = line.find_first_of(" ")) == string::npos) {
+            return "npos";
+        }        
+        output.append(" " + line.substr(0, firstBlank));
+        line = line.substr(firstBlank + 1);
+    }
+    else{
+        line = line.substr(firstBlank + 1);
+    }
     return output;
 }
 

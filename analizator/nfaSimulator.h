@@ -18,7 +18,6 @@ private:
     };
     vector<Row> finalTable;
     
-
     vector<NFA> automati;
     map<string, int> nfaNames;
     int currentState;

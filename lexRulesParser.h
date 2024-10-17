@@ -8,6 +8,12 @@
 #ifndef REGDEF_PARSER_H
 #define REGDEF_PARSER_H
 
+#include <iostream>
+#include <map>
+#include <regex>
+#include <string>
+#include <vector>
+
 using namespace std;
 
 #define RULES_STRUCTURE vector<pair<string, vector<string>>>
