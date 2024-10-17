@@ -62,9 +62,9 @@ void RegexToNFAParser::constructNFA(NFA_STRUCTURE* stateTransitions, int startSt
             if (prefiksirano == true) {
                 prefiksirano = false;
                 string prijelazni_znak;
-                if(regex[i] == '*' || regex[i] == '(' || regex[i] == ')' || regex[i] == '|' || regex[i] == '\\'){
+                // Symbols that can be used in regDefs
+                if(regex[i] == '*' || regex[i] == '(' || regex[i] == ')' || regex[i] == '|' || regex[i] == '{' || regex[i] == '}' || regex[i] == '\\'){
                     prijelazni_znak = string{ regex[i] };
-                    // cout << regex[i-1] << " " << prijelazni_znak << endl;
                 }
                 else{
                     prijelazni_znak = "\\" + string{ regex[i]};

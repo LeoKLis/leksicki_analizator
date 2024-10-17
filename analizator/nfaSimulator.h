@@ -40,6 +40,7 @@ public:
     void loadFromStdin();
     void simulate();
     void printTable();
+    void printAsSource();
 };
 
 #endif

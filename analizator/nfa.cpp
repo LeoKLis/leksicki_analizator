@@ -8,7 +8,8 @@ NFA::NFA()
     currentStates.insert(newStates.begin(), newStates.end());
 }
 
-NFA::NFA(string nfaName, NFA_STRUCTURE stateTransitions, map<int, vector<string>> acceptStatesMap)
+NFA::NFA(string nfaName, NFA_STRUCTURE stateTransitions,
+    map<int, vector<string>> acceptStatesMap)
 {
     name = nfaName;
     nfaStructure = stateTransitions;
@@ -20,7 +21,8 @@ NFA::NFA(string nfaName, NFA_STRUCTURE stateTransitions, map<int, vector<string>
 }
 
 int NFA::isFinished()
-{ // 0 - nema finalnih, ali ima stanja; 1 - ima i finalnih i mozda obicnih; 2  - nema stanja
+{ // 0 - nema finalnih, ali ima stanja; 1 - ima i finalnih i mozda obicnih; 2
+    // - nema stanja
     set<int> newStates = resolveEpsilonEnviroment(currentStates);
     currentStates.insert(newStates.begin(), newStates.end());
     if (currentStates.size() == 0) {
@@ -35,7 +37,8 @@ int NFA::isFinished()
     return 0;
 }
 
-set<int> NFA::resolveEpsilonEnviroment(set<int> current)
+set<int>
+NFA::resolveEpsilonEnviroment(set<int> current)
 {
     if (current.empty())
         return current;
@@ -55,17 +58,21 @@ set<int> NFA::resolveEpsilonEnviroment(set<int> current)
     return nextStates;
 }
 
-// \\n
-//    ||
 bool NFA::readChar(char symbol)
 {
     string znak = string { symbol };
-    // \ nije char pa false
-    if(symbol == '\\' && !prefiksirano){
-        prefiksirano = true;        
-        return false;
+    if (symbol == ' ') {
+        znak = "\\_";
+    } else if (symbol == '\t') {
+        znak = "\\t";
+    } else if (symbol == '\n') {
+        znak = "\\n";
     }
-    else if(prefiksirano){
+    // \ nije char pa false
+    if (symbol == '\\' && !prefiksirano) {
+        prefiksirano = true;
+        return false;
+    } else if (prefiksirano) {
         znak = "\\" + znak;
         prefiksirano = false;
     }
@@ -76,8 +83,8 @@ bool NFA::readChar(char symbol)
 
     set<int> newCurrent;
     for (auto i : currentStates) {
-        if (nfaStructure[i].count( znak )) {
-            for (auto i : nfaStructure[i][ znak ])
+        if (nfaStructure[i].count(znak)) {
+            for (auto i : nfaStructure[i][znak])
                 newCurrent.insert(i);
         }
     }
@@ -93,9 +100,9 @@ void NFA::restart()
     currentStates.insert(newStates.begin(), newStates.end());
 }
 
-vector<string> NFA::getAction()
+vector<string>
+NFA::getAction()
 {
-
     set<int> newStates = resolveEpsilonEnviroment(currentStates);
     currentStates.insert(newStates.begin(), newStates.end());
 

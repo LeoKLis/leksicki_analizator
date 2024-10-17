@@ -43,7 +43,7 @@ void NfaSimulator::loadFromStdin(){
     getline(file, input);
     codeString.append(input);
     while(getline(file, input)){
-        codeString.append("\\n" + input);
+        codeString.append("\n" + input);
     }
 }
 // 
@@ -65,9 +65,9 @@ void NfaSimulator::simulate()
         case 1:
             izraz = automati[currentState].getAction();
             posljednji = zavrsetak;
-            zavrsetak = zavrsetak + 1;
+            zavrsetak += 1;
             if(!automati[currentState].readChar(znak)){
-                posljednji += 1;
+                posljednji = zavrsetak;
                 zavrsetak += 1;
                 znak = codeString[zavrsetak];
                 automati[currentState].readChar(znak);
@@ -82,8 +82,10 @@ void NfaSimulator::simulate()
                 string niz = codeString.substr(pocetak, posljednji - pocetak);
                 doAction(izraz, niz); // TREBA DODATI NIZ SIMBOLA KOJI SE KORISTE
                 izraz.clear();
+                posljednji -= 1;
                 pocetak = posljednji + 1;
                 zavrsetak = pocetak;
+                automati[currentState].restart();
             }
             break;
         }
@@ -95,4 +97,18 @@ void NfaSimulator::printTable()
     for (auto it : finalTable) {
         cout << it.lexUnit << " " << it.rowNumber << " " << it.uniformSymbol << "\n";
     }
+}
+
+void NfaSimulator::printAsSource()
+{
+    int currentRow = 1;
+    cout << "1\t";
+    for(auto it : finalTable){
+        if(currentRow != it.rowNumber){
+            currentRow = it.rowNumber;
+            cout << endl <<it.rowNumber << "\t";
+        }
+        cout << it.uniformSymbol << " ";
+    }
+    cout << endl;
 }

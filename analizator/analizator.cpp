@@ -16,5 +16,6 @@ int main()
     NfaSimulator nfasim(nfaArray);
     nfasim.loadFromStdin();
     nfasim.simulate();
-    nfasim.printTable();
+    // nfasim.printTable();
+    nfasim.printAsSource();
 }
