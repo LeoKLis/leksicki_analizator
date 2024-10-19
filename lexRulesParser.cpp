@@ -43,15 +43,13 @@ void LexRulesParser::appendRegdefs(string line, LexRules& lexRules)
         lexRules.regexMap.insert(make_pair(regdefName, regdefDefinition));
         return;
     }
-    for (int i = 0; i < regdefDefinition.length(); i++) {
+    for (int i = 0; (size_t)i < regdefDefinition.length(); i++) {
         if (regdefDefinition[i] == '{') {
-            bool foundRegdef = false;
             int j;
-            for (j = i + 1; j < regdefDefinition.length(); j++) {
+            for (j = i + 1; (size_t)j < regdefDefinition.length(); j++) {
                 if (!isLetter(regdefDefinition[j]))
                     break;
                 if (regdefDefinition[j] == '}') {
-                    foundRegdef = true;
                     break;
                 }
             }
@@ -94,15 +92,13 @@ void LexRulesParser::appendLexRules(string line, LexRules& lexRules)
     string stateRegex = line.substr(delimiterIndex + 1);
 
     if (!isRegex(stateRegex)) {
-        for (int i = 0; i < stateRegex.length(); i++) {
+        for (int i = 0; (size_t)i < stateRegex.length(); i++) {
             if (stateRegex[i] == '{') {
-                bool foundRegdef = false;
                 int j;
-                for (j = i + 1; j < stateRegex.length(); j++) {
+                for (j = i + 1; (size_t)j < stateRegex.length(); j++) {
                     if (!isLetter(stateRegex[j]))
                         break;
                     if (stateRegex[j] == '}') {
-                        foundRegdef = true;
                         break;
                     }
                 }

@@ -2,14 +2,13 @@
 
 string NfaDeserializer::readChar(string& line)
 {
-    int firstBlank;
+    size_t firstBlank;
     if ((firstBlank = line.find_first_of(" ")) == string::npos) {
         return "npos";
     }
     string output = line.substr(0, firstBlank);
     if(output == "UDJI_U_STANJE" || output == "VRATI_SE"){
         line = line.substr(firstBlank + 1);
-        int firstBlank;
         if ((firstBlank = line.find_first_of(" ")) == string::npos) {
             return "npos";
         }        
@@ -71,7 +70,7 @@ vector<string> NfaDeserializer::deserializeLexUnits(string filePath)
     ifstream nfaFile(filePath);
     string line;
     getline(nfaFile, line);
-    int emptyIndex;
+    size_t emptyIndex;
     while ((emptyIndex = line.find_first_of(" ")) != string::npos) {
         lexUnits.push_back(line.substr(0, emptyIndex));
         line = line.substr(emptyIndex + 1);

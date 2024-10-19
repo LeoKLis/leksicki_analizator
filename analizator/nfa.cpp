@@ -37,16 +37,15 @@ int NFA::isFinished()
     return 0;
 }
 
-set<int>
-NFA::resolveEpsilonEnviroment(set<int> current)
+set<int> NFA::resolveEpsilonEnviroment(set<int> current)
 {
     if (current.empty())
         return current;
 
     set<int> nextStates;
     for (auto i : current) {
-        if (nfaStructure[i].count("$")) {
-            for (auto j : nfaStructure[i]["$"])
+        if (nfaStructure[i].count(EPSILON)) {
+            for (auto j : nfaStructure[i][EPSILON])
                 nextStates.insert(j);
         }
     }
@@ -58,7 +57,7 @@ NFA::resolveEpsilonEnviroment(set<int> current)
     return nextStates;
 }
 
-bool NFA::readChar(char symbol)
+void NFA::readChar(char symbol)
 {
     string znak = string { symbol };
     if (symbol == ' ') {
@@ -68,15 +67,6 @@ bool NFA::readChar(char symbol)
     } else if (symbol == '\n') {
         znak = "\\n";
     }
-    // \ nije char pa false
-    if (symbol == '\\' && !prefiksirano) {
-        prefiksirano = true;
-        return false;
-    } else if (prefiksirano) {
-        znak = "\\" + znak;
-        prefiksirano = false;
-    }
-
     // Epsilon okruzenje
     set<int> newStates = resolveEpsilonEnviroment(currentStates);
     currentStates.insert(newStates.begin(), newStates.end());
@@ -88,8 +78,8 @@ bool NFA::readChar(char symbol)
                 newCurrent.insert(i);
         }
     }
-    currentStates = newCurrent;
-    return true;
+    currentStates.clear();
+    currentStates.insert(newCurrent.begin(), newCurrent.end());
 }
 
 void NFA::restart()
@@ -100,8 +90,7 @@ void NFA::restart()
     currentStates.insert(newStates.begin(), newStates.end());
 }
 
-vector<string>
-NFA::getAction()
+vector<string> NFA::getAction()
 {
     set<int> newStates = resolveEpsilonEnviroment(currentStates);
     currentStates.insert(newStates.begin(), newStates.end());

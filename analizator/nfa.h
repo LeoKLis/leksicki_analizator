@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#define EPSILON "epsilon"
+
 using namespace std;
 
 #define NFA_STRUCTURE vector<map<string, vector<int>>>
@@ -26,7 +28,7 @@ public:
     NFA();
     NFA(string nfaName, NFA_STRUCTURE stateTransitions, map<int, vector<string>> acceptStatesMap);
     int isFinished();
-    bool readChar(char symbol);
+    void readChar(char symbol);
     vector<string> getAction();
 
     void restart();

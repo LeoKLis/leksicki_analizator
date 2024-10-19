@@ -1,7 +1,7 @@
 #ifndef REGNFA_PARSER_H
 #define REGNFA_PARSER_H
 
-#define EPSILON "$"
+#define EPSILON "epsilon"
 #define NFA_STRUCTURE vector<map<string, vector<int>>>
 #define LEX_RULES_STRUCTURE vector<pair<string, vector<string>>>
 
